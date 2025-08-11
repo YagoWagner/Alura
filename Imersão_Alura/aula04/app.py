@@ -40,16 +40,20 @@ df_filtrado = df[
     (df['senioridade'].isin(senioridades_selecionadas)) &
     (df['contrato'].isin(contratos_selecionados)) &
     (df['tamanho_empresa'].isin(tamanhos_selecionados))
-]
+] 
+# O df_filtrado agora contém apenas os dados que correspondem aos filtros selecionados pelo usuário.
+
 
 # --- Conteúdo Principal ---
 st.title("🎲 Dashboard de Análise de Salários na Área de Dados")
-st.markdown("Explore os dados salariais na área de dados nos últimos anos. Utilize os filtros à esquerda para refinar sua análise.")
+st.markdown("Explore os dados salariais na área de dados nos últimos anos. Utilize os filtros à esquerda para refinar sua análise.") # o st.markdown permite adicionar texto formatado, como títulos e descrições.
+
 
 # --- Métricas Principais (KPIs) ---
-st.subheader("Métricas gerais (Salário anual em USD)")
+st.subheader("Métricas gerais (Salário anual em USD)") # o st.subheader cria um subtítulo para a seção de métricas gerais.
 
-if not df_filtrado.empty:
+
+if not df_filtrado.empty: # Verifica se o DataFrame filtrado não está vazio antes de calcular as métricas.
     salario_medio = df_filtrado['usd'].mean()
     salario_maximo = df_filtrado['usd'].max()
     total_registros = df_filtrado.shape[0]
@@ -57,9 +61,9 @@ if not df_filtrado.empty:
 else:
     salario_medio, salario_mediano, salario_maximo, total_registros, cargo_mais_comum = 0, 0, 0, ""
 
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Salário médio", f"${salario_medio:,.0f}")
-col2.metric("Salário máximo", f"${salario_maximo:,.0f}")
+col1, col2, col3, col4 = st.columns(4) # esses cols criam quatro colunas para exibir as métricas lado a lado. E o st.columns permite dividir a página em colunas.
+col1.metric("Salário médio", f"${salario_medio:,.0f}") # o col1.metric exibe uma métrica com um título e um valor formatado. 
+col2.metric("Salário máximo", f"${salario_maximo:,.0f}") # o col2.metric exibe uma métrica com um título e um valor formatado.
 col3.metric("Total de registros", f"{total_registros:,}")
 col4.metric("Cargo mais frequente", cargo_mais_frequente)
 
@@ -68,21 +72,22 @@ st.markdown("---")
 # --- Análises Visuais com Plotly ---
 st.subheader("Gráficos")
 
-col_graf1, col_graf2 = st.columns(2)
+col_graf1, col_graf2 = st.columns(2) # o col_graf1 e col_graf2 criam duas colunas para exibir os gráficos lado a lado.
 
-with col_graf1:
+with col_graf1: # o with é usado para agrupar o código que será executado dentro de uma coluna específica.
+    # Gráfico de barras para os 10 cargos com maior salário médio
     if not df_filtrado.empty:
-        top_cargos = df_filtrado.groupby('cargo')['usd'].mean().nlargest(10).sort_values(ascending=True).reset_index()
+        top_cargos = df_filtrado.groupby('cargo')['usd'].mean().nlargest(10).sort_values(ascending=True).reset_index() # Agrupa os dados por cargo, calcula a média salarial e seleciona os 10 maiores salários médios, ordenando-os em ordem crescente.
         grafico_cargos = px.bar(
             top_cargos,
             x='usd',
             y='cargo',
-            orientation='h',
+            orientation='h', # Define a orientação horizontal do gráfico de barras
             title="Top 10 cargos por salário médio",
-            labels={'usd': 'Média salarial anual (USD)', 'cargo': ''}
+            labels={'usd': 'Média salarial anual (USD)', 'cargo': ''} # Labels para os eixos do gráfico
         )
-        grafico_cargos.update_layout(title_x=0.1, yaxis={'categoryorder':'total ascending'})
-        st.plotly_chart(grafico_cargos, use_container_width=True)
+        grafico_cargos.update_layout(title_x=0.1, yaxis={'categoryorder':'total ascending'}) # Atualiza o layout do gráfico, centralizando o título e ordenando os cargos pelo salário médio de forma ascendente.
+        st.plotly_chart(grafico_cargos, use_container_width=True) # o st.plotly_chart exibe o gráfico Plotly na aplicação Streamlit.
     else:
         st.warning("Nenhum dado para exibir no gráfico de cargos.")
 
